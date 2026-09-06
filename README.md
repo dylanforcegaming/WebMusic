@@ -9,7 +9,7 @@ Dependencies Required (the app will not work without them):
 - ffmpeg
 - python
 - clang
-- build-essentia
+- build-essentials
 - express
 - music-metadata
 
