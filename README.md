@@ -19,7 +19,7 @@ Step 1: Give Termux access to your phone storage
 Before the server can find your music files, Termux needs permission to look inside your phone's storage. Type this command and hit enter:
 
 'bash'
-# termux-setup-storage
+### termux-setup-storage
 
 A permission pop-up will 'likely' appear on your screen. Tap Allow.
 ​
