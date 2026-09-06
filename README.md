@@ -18,7 +18,8 @@ Step 1: Give Termux access to your phone storage
 ​
 Before the server can find your music files, Termux needs permission to look inside your phone's storage. Type this command and hit enter:
 
-termux-setup-storage
+'bash'
+# termux-setup-storage
 
 A permission pop-up will 'likely' appear on your screen. Tap Allow.
 ​
@@ -26,15 +27,21 @@ ________________________________________________
 
 Step 2: Install the required tools
 ​Your phone needs a few core programs to run the server and build the code. Copy and paste this long command and hit enter:
-pkg update && pkg upgrade && pkg install nodejs ffmpeg python clang build-essential
+
+'bash'
+# pkg update && pkg upgrade && pkg install nodejs ffmpeg python clang build-essential
 ________________________________________________
 Step 3: Make the folder for WebMusic
 
-mkdir webmusic && cd webmusic
+'bash'
+# mkdir webmusic && cd webmusic
 ________________________________________________
 Step 4: Install the required packages
-​WebMusic relies on two main packages: Express (to run the web server) and music-metadata (to read your songs' titles, artists, and album art). Install them by running:
-npm install express music-metadata
+​
+WebMusic relies on two main packages: Express (to run the web server) and music-metadata (to read your songs' titles, artists, and album art). Install them by running:
+
+'bash'
+# npm install express music-metadata
 ________________________________________________
 Step 5: Make the script (WebMusic.js)
 
