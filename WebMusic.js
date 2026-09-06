@@ -52,8 +52,8 @@ function resolveSystemPath(relPath) {
 
 app.get('/manifest.json', (req, res) => {
   res.json({
-    name: "Dylan's Web Player",
-    short_name: "SpotiFLAC",
+    name: "WebMusic",
+    short_name: "WebMusic",
     start_url: "/",
     display: "standalone",
     background_color: "#141218",
@@ -253,7 +253,7 @@ const HTML_TEMPLATE = `
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dylan's Web Player</title>
+  <title>WebMusic</title>
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#141218">
   <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
@@ -337,6 +337,8 @@ const HTML_TEMPLATE = `
       max-width: 240px;
       aspect-ratio: 1 / 1;
       position: relative;
+      border-radius: 20px;
+      overflow: hidden;
     }
 
     .now-cover {
@@ -351,6 +353,34 @@ const HTML_TEMPLATE = `
       justify-content: center;
       font-size: 48px;
       color: var(--m3-outline);
+      transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    /* Shimmer effect overlay for the main cover */
+    .now-display-container::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -150%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+      transform: skewX(-20deg);
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    .now-display-container.transitioning .now-cover {
+      opacity: 0.3;
+      transform: scale(0.94);
+    }
+
+    .now-display-container.transitioning::after {
+      opacity: 1;
+      animation: coverShimmer 0.5s ease-in-out forwards;
+    }
+
+    @keyframes coverShimmer {
+      0% { left: -150%; }
+      100% { left: 150%; }
     }
 
     .lyrics-panel {
@@ -364,7 +394,9 @@ const HTML_TEMPLATE = `
       text-align: center;
       box-shadow: 0 12px 28px rgba(0,0,0,0.6);
       white-space: pre-wrap;
+      font-family: Arial, sans-serif;
       font-size: 14px;
+      font-weight: bold;
       line-height: 1.6;
       color: var(--m3-on-surface);
     }
@@ -456,6 +488,7 @@ const HTML_TEMPLATE = `
 
     .track-list { display: flex; flex-direction: column; gap: 10px; }
     .track-card {
+      position: relative;
       background-color: var(--m3-surface);
       border-radius: 16px;
       padding: 12px 16px;
@@ -463,7 +496,35 @@ const HTML_TEMPLATE = `
       align-items: center;
       gap: 16px;
       cursor: pointer;
+      overflow: hidden;
+      transition: transform 0.2s ease, background-color 0.2s ease;
     }
+    
+    /* Shimmer effect when hovering over a song */
+    .track-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -150%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+      transform: skewX(-20deg);
+      pointer-events: none;
+    }
+
+    .track-card:hover {
+      transform: translateX(4px);
+      background-color: var(--m3-surface-variant);
+    }
+
+    .track-card:hover::after {
+      animation: cardShimmer 0.75s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes cardShimmer {
+      0% { left: -150%; }
+      100% { left: 150%; }
+    }
+
     .track-card.active { background-color: var(--m3-primary-container); }
     .cover-art {
       width: 48px;
@@ -492,6 +553,7 @@ const HTML_TEMPLATE = `
       align-items: center;
       justify-content: center;
       text-decoration: none;
+      z-index: 2;
     }
     .download-btn svg { width: 18px; height: 18px; fill: currentColor; }
     .badge { font-size: 11px; font-weight: 700; padding: 6px 10px; border-radius: 8px; background: var(--m3-surface-variant); color: var(--m3-primary); }
@@ -506,7 +568,7 @@ const HTML_TEMPLATE = `
 <body>
   <header>
     <div class="header-left">
-      <h1>Dylan's Web Player</h1>
+      <h1>WebMusic</h1>
       <span class="love-tagline">Made with love ♡</span>
     </div>
     <div class="header-clock" id="header-clock">--:--:--</div>
@@ -516,7 +578,7 @@ const HTML_TEMPLATE = `
     <div class="sidebar">
       <div class="sidebar-title">Playing Now</div>
       
-      <div class="now-display-container">
+      <div class="now-display-container" id="now-container">
         <img id="now-cover" class="now-cover" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240' fill='%23938F96'><rect width='240' height='240' fill='%23211F26'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='60'>🎵</text></svg>">
         <div id="lyrics-panel" class="lyrics-panel">No lyrics loaded.</div>
       </div>
@@ -703,9 +765,22 @@ const HTML_TEMPLATE = `
       const coverUrl = track.hasCover ? '/api/cover?path=' + encodeURIComponent(track.relPath) : null;
       const defaultCover = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240' fill='%23938F96'><rect width='240' height='240' fill='%23211F26'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='60'>🎵</text></svg>";
 
-      document.getElementById('now-title').textContent = track.title;
-      document.getElementById('now-meta').textContent = \`\${track.artist} — \${track.album}\`;
-      document.getElementById('now-cover').src = coverUrl || defaultCover;
+      const nowContainer = document.getElementById('now-container');
+      const coverImg = document.getElementById('now-cover');
+
+      // Trigger transition state and shimmer
+      nowContainer.classList.add('transitioning');
+
+      setTimeout(() => {
+        document.getElementById('now-title').textContent = track.title;
+        document.getElementById('now-meta').textContent = \`\${track.artist} — \${track.album}\`;
+        coverImg.src = coverUrl || defaultCover;
+        
+        // Remove transition state to complete smooth swap
+        setTimeout(() => {
+          nowContainer.classList.remove('transitioning');
+        }, 100);
+      }, 250);
 
       fetchLyrics(track.relPath);
 
