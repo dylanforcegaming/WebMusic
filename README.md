@@ -18,8 +18,9 @@ Step 1: Give Termux access to your phone storage
 ​
 Before the server can find your music files, Termux needs permission to look inside your phone's storage. Type this command and hit enter:
 
-'bash'
-### termux-setup-storage
+```bash
+termux-setup-storage
+```
 
 A permission pop-up will 'likely' appear on your screen. Tap Allow.
 ​
@@ -28,20 +29,23 @@ ________________________________________________
 Step 2: Install the required tools
 ​Your phone needs a few core programs to run the server and build the code. Copy and paste this long command and hit enter:
 
-'bash'
+```
 # pkg update && pkg upgrade && pkg install nodejs ffmpeg python clang build-essential
+```
 ________________________________________________
 Step 3: Make the folder for WebMusic
 
-'bash'
+```bash
 # mkdir webmusic && cd webmusic
+```
 ________________________________________________
 Step 4: Install the required packages
 ​
 WebMusic relies on two main packages: Express (to run the web server) and music-metadata (to read your songs' titles, artists, and album art). Install them by running:
 
-'bash'
+```bash'
 # npm install express music-metadata
+```
 ________________________________________________
 Step 5: Make the script (WebMusic.js)
 
@@ -63,3 +67,4 @@ It was when I wanted to listen to music and only my laptop had a headphone jack 
 So I decided to make my own app, and it can't get blocked. Ever.
 I hope you enjoy it, it took blood sweat and tears just to make it read my storage on my phone to my computer 🫠.
 With all love - Dylan ♡
+
